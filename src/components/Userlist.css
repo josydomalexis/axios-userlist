@@ -1,0 +1,13 @@
+.address-col {
+  width: 200px;
+}
+
+tr.active th,
+tr.active td {
+  background-color: #083c5d !important;
+  color: aliceblue;
+}
+
+tr.active {
+  box-shadow: 0 0 10px inset #000;
+}
