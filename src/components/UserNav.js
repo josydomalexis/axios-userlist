@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 function UserNav() {
-  const { users, isLogsedIn, setLoggedIn } = GrantWaterFall();
+  const { users, isLogsedIn, setLoggedIn, setEditRowNumber } = GrantWaterFall();
   const navigate = useNavigate();
   return (
     <nav className="navbar" style={{ backgroundColor: "#222936" }}>
@@ -19,6 +19,7 @@ function UserNav() {
               onClick={() => {
                 sessionStorage.setItem("isLoggedIn", false);
                 setLoggedIn(JSON.parse(sessionStorage.getItem("isLoggedIn")));
+                setEditRowNumber(0);
               }}
             >
               Log Out

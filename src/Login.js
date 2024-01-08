@@ -4,17 +4,23 @@ import Credentials from "./config/AdminConfig";
 import { Link, useNavigate } from "react-router-dom";
 import { GrantWaterFall } from "./config/Utils";
 import { Formik } from "formik";
+import { useRef } from "react";
 
 function Login() {
   const { users, setUsers, setLoggedIn } = GrantWaterFall();
   const navigate = useNavigate();
+  const inputUserName = useRef();
+  const inputPassword = useRef();
   const Login = (e) => {
     e.preventDefault();
-    // localStorage.setItem("isLoggedIn", true);
-    // setLoggedIn(localStorage.getItem("isLoggedIn"));
-    sessionStorage.setItem("isLoggedIn", true);
-    setLoggedIn(JSON.parse(sessionStorage.getItem("isLoggedIn")));
-    navigate("/userlist");
+    if (
+      inputUserName.current.value === "admin" &&
+      inputPassword.current.value === "12345"
+    ) {
+      sessionStorage.setItem("isLoggedIn", true);
+      setLoggedIn(JSON.parse(sessionStorage.getItem("isLoggedIn")));
+      navigate("/userlist");
+    }
   };
 
   return (
@@ -39,7 +45,9 @@ function Login() {
                   className="form-control"
                   placeholder="User Name"
                   name="username"
+                  ref={inputUserName}
                 />
+                <div className="error"></div>
               </div>
               <div className="form-group pb-3">
                 <label>Password</label>
@@ -49,6 +57,7 @@ function Login() {
                   className="form-control"
                   placeholder="Password"
                   name="password"
+                  ref={inputPassword}
                 />
               </div>
               <button type="submit" className="btn btn-warning me-2 ">

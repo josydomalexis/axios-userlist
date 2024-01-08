@@ -6,6 +6,7 @@ tr.active th,
 tr.active td {
   background-color: #083c5d !important;
   color: aliceblue;
+  padding: 15px 10px 15px;
 }
 
 tr.active {

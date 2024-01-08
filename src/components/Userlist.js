@@ -1,14 +1,103 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { GrantWaterFall } from "../config/Utils";
 import { useNavigate } from "react-router-dom";
 import UserNav from "./UserNav";
 import "./Userlist.css";
 
 function Userlist() {
-  const { users, isLogsedIn, setLoggedIn } = GrantWaterFall();
+  const {
+    users,
+    setUsers,
+    isLogsedIn,
+    setLoggedIn,
+    editRowNumber,
+    setEditRowNumber,
+    getData,
+  } = GrantWaterFall();
   const navigate = useNavigate();
 
-  const [editRowNumber, setEditRowNumber] = useState(0);
+  const [currentUserData, setCurrentUserData] = useState({
+    id: "",
+    name: "",
+    username: "",
+    email: "",
+    address: {
+      street: "",
+      suite: "",
+      city: "",
+      zipcode: "",
+      geo: {
+        lat: "",
+        lng: "",
+      },
+    },
+    phone: "",
+    city: "",
+    website: "",
+    company: {
+      name: "",
+      catchPhrase: "",
+      bs: "",
+    },
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentUserData((user) => {
+      let personData = { ...user };
+      if (
+        name === "street" ||
+        name === "suite" ||
+        name === "city" ||
+        name === "zipcode"
+      ) {
+        personData.address[name] = value;
+      } else if (name === "lat" || name === "lng") {
+        personData.address.geo[name] = value;
+      } else if (name === "companyName") {
+        personData.company.name = value;
+      } else if (name === "catchPhrase" || name === "bs") {
+        personData.company[name] = value;
+      } else {
+        personData = { ...user, [name]: value };
+      }
+      return personData;
+    });
+  };
+
+  const editRow = (id, userData) => {
+    setEditRowNumber(id);
+    setCurrentUserData(userData);
+  };
+
+  const handleUpdate = async (id) => {
+    console.log(id);
+    await fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(currentUserData),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => response.json())
+      .then(getData(setUsers))
+      .catch((err) => {
+        console.log(err);
+      });
+    // setUsers(json);
+  };
+
+  const handleDelete = (id) => {
+    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then(console.log("deleted"));
+  };
+
+  useEffect(() => {
+    getData(setUsers);
+  }, []);
 
   return (
     <>
@@ -49,7 +138,8 @@ function Userlist() {
                           id="name"
                           name="name"
                           type="text"
-                          value={user.name}
+                          value={currentUserData.name}
+                          onChange={handleChange}
                         />
                       </div>
                     ) : (
@@ -65,7 +155,8 @@ function Userlist() {
                           id="email"
                           name="email"
                           type="email"
-                          value={user.email}
+                          value={currentUserData.email}
+                          onChange={handleChange}
                         />
                       </div>
                     ) : (
@@ -76,7 +167,7 @@ function Userlist() {
                     <div>
                       {editRowNumber === user.id ? (
                         <div className="input-group pb-2">
-                          <span class="input-group-text">
+                          <span className="input-group-text">
                             <i className="bi bi-signpost-fill"></i>
                           </span>
                           <input
@@ -84,7 +175,8 @@ function Userlist() {
                             id="street"
                             name="street"
                             type="text"
-                            value={user.address.street}
+                            value={currentUserData.address.street}
+                            onChange={handleChange}
                           />
                         </div>
                       ) : (
@@ -97,7 +189,7 @@ function Userlist() {
                     <div className="mt-1">
                       {editRowNumber === user.id ? (
                         <div className="input-group pb-2">
-                          <span class="input-group-text">
+                          <span className="input-group-text">
                             <i className="bi bi-house-door-fill"> </i>
                           </span>
                           <input
@@ -105,7 +197,8 @@ function Userlist() {
                             id="suite"
                             name="suite"
                             type="text"
-                            value={user.address.suite}
+                            value={currentUserData.address.suite}
+                            onChange={handleChange}
                           />
                         </div>
                       ) : (
@@ -118,7 +211,7 @@ function Userlist() {
                     <div className="mt-1">
                       {editRowNumber === user.id ? (
                         <div className="input-group pb-2">
-                          <span class="input-group-text">
+                          <span className="input-group-text">
                             <i className="bi bi-buildings-fill"> </i>
                           </span>
                           <input
@@ -126,7 +219,8 @@ function Userlist() {
                             id="city"
                             name="city"
                             type="text"
-                            value={user.address.city}
+                            value={currentUserData.address.city}
+                            onChange={handleChange}
                           />
                         </div>
                       ) : (
@@ -139,7 +233,7 @@ function Userlist() {
                     <div className="mt-1">
                       {editRowNumber === user.id ? (
                         <div className="input-group pb-2">
-                          <span class="input-group-text">
+                          <span className="input-group-text">
                             <i className="bi bi-geo-alt-fill"> </i>
                           </span>
 
@@ -148,7 +242,8 @@ function Userlist() {
                             id="zipcode"
                             name="zipcode"
                             type="text"
-                            value={user.address.zipcode}
+                            value={currentUserData.address.zipcode}
+                            onChange={handleChange}
                           />
                         </div>
                       ) : (
@@ -159,16 +254,17 @@ function Userlist() {
                       )}
                     </div>
                     <div className="mt-1">
-                      <div class="input-group pb-2">
+                      <div className="input-group pb-2">
                         {editRowNumber === user.id ? (
-                          <div class="input-group pb-2 mb-1">
-                            <span class="input-group-text">Lati</span>
+                          <div className="input-group pb-2 mb-1">
+                            <span className="input-group-text">Lati</span>
                             <input
                               className="form-control"
                               id="lat"
                               name="lat"
                               type="number"
-                              value={user.address.geo.lat}
+                              value={currentUserData.address.geo.lat}
+                              onChange={handleChange}
                             />
                           </div>
                         ) : (
@@ -179,14 +275,15 @@ function Userlist() {
                         )}
 
                         {editRowNumber === user.id ? (
-                          <div class="input-group pb-2">
-                            <span class="input-group-text">long</span>
+                          <div className="input-group pb-2">
+                            <span className="input-group-text">long</span>
                             <input
                               className="form-control"
                               id="lng"
                               name="lng"
                               type="number"
-                              value={user.address.geo.lng}
+                              value={currentUserData.address.geo.lng}
+                              onChange={handleChange}
                             />
                           </div>
                         ) : (
@@ -197,13 +294,14 @@ function Userlist() {
                   </td>
                   <td>
                     {editRowNumber === user.id ? (
-                      <div class="input-group">
+                      <div className="input-group">
                         <input
                           className="form-control"
                           id="phone"
                           name="phone"
                           type="text"
-                          value={user.phone}
+                          value={currentUserData.phone}
+                          onChange={handleChange}
                         />
                       </div>
                     ) : (
@@ -212,13 +310,14 @@ function Userlist() {
                   </td>
                   <td>
                     {editRowNumber === user.id ? (
-                      <div class="input-group">
+                      <div className="input-group">
                         <input
                           className="form-control"
                           id="website"
                           name="website"
                           type="text"
-                          value={user.website}
+                          value={currentUserData.website}
+                          onChange={handleChange}
                         />
                       </div>
                     ) : (
@@ -228,8 +327,8 @@ function Userlist() {
                   <td>
                     <div className="pb-2 mb-1">
                       {editRowNumber === user.id ? (
-                        <div class="input-group">
-                          <span class="input-group-text">
+                        <div className="input-group">
+                          <span className="input-group-text">
                             <i className="bi bi-building-fill"></i>
                           </span>
                           <input
@@ -237,7 +336,8 @@ function Userlist() {
                             id="companyName"
                             name="companyName"
                             type="text"
-                            value={user.company.name}
+                            value={currentUserData.company.name}
+                            onChange={handleChange}
                           />
                         </div>
                       ) : (
@@ -253,17 +353,21 @@ function Userlist() {
                           <div className="form-floating">
                             <textarea
                               className="form-control"
-                              placeholder="Tagline"
-                              id="Tagline"
-                              value={user.company.catchPhrase}
+                              placeholder="catchPhrase"
+                              id="catchPhrase"
+                              name="catchPhrase"
+                              value={currentUserData.company.catchPhrase}
+                              onChange={handleChange}
                               style={{ height: "100px" }}
                             ></textarea>
-                            <label for="floatingTextarea2">Tagline</label>
+                            <label htmlFor="floatingTextarea2">
+                              catchPhrase
+                            </label>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <i class="bi bi-chat-right-heart-fill pe-1"></i>
+                          <i className="bi bi-chat-right-heart-fill pe-1"></i>
                           Tagline
                           {user.company.catchPhrase}
                         </>
@@ -278,10 +382,12 @@ function Userlist() {
                               className="form-control"
                               placeholder="bs"
                               id="bs"
-                              value={user.company.bs}
+                              name="bs"
+                              value={currentUserData.company.bs}
+                              onChange={handleChange}
                               style={{ height: "100px" }}
                             ></textarea>
-                            <label for="floatingTextarea2">
+                            <label htmlFor="floatingTextarea2">
                               Business Slogan
                             </label>
                           </div>
@@ -297,16 +403,26 @@ function Userlist() {
                   {isLogsedIn ? (
                     <td>
                       {editRowNumber === user.id ? (
-                        <button className="btn btn-success ms-2">Update</button>
+                        <button
+                          className="btn btn-success ms-2"
+                          onClick={() => handleUpdate(user.id)}
+                        >
+                          Update
+                        </button>
                       ) : (
                         <button
                           className="btn btn-warning"
-                          onClick={() => setEditRowNumber(user.id)}
+                          onClick={() => editRow(user.id, user)}
                         >
                           Edit
                         </button>
                       )}
-                      <button className="btn btn-danger ms-2">Delete</button>
+                      <button
+                        className="btn btn-danger ms-2"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        Delete
+                      </button>
                     </td>
                   ) : (
                     ""

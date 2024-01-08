@@ -11,12 +11,17 @@ export const WaterFall = createContext();
 function App() {
   const [users, setUsers] = useState([]);
   const [isLogsedIn, setLoggedIn] = useState(false);
+  const [editRowNumber, setEditRowNumber] = useState(0);
 
-  useEffect(() => {
-    getData(setUsers);
-  }, []);
-
-  const dataFall = { users, setUsers, isLogsedIn, setLoggedIn };
+  const dataFall = {
+    users,
+    setUsers,
+    isLogsedIn,
+    setLoggedIn,
+    editRowNumber,
+    setEditRowNumber,
+    getData,
+  };
   return (
     <WaterFall.Provider value={dataFall}>
       <Routes>
